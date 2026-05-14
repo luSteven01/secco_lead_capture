@@ -24,7 +24,12 @@ export default function Form() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     function handleChange ( event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> ) {
+        const {name, value} = event.target;
+        console.log (event.target)
 
+        setFormData((current) => ({
+            ...current, [name]: value,
+        }))
     }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
