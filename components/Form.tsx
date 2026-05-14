@@ -24,7 +24,7 @@ export default function Form() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     function handleChange ( event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> ) {
-        const {name, value} = event.target;
+        const {name, value} = event.target
         console.log (event.target)
 
         setFormData((current) => ({
@@ -33,6 +33,31 @@ export default function Form() {
     }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setIsSubmitting(true)
+        setStatus({type: 'idle', message: ''})
+
+        try {
+            const response = await fetch('/api/lead-capture', {
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application.json'
+                },
+                body: JSON.stringify(formData)
+            })
+
+            const body = await response.json()
+
+            if(!response.ok) {
+                throw new Error(body?.error ?? ' Something went wrong sending the lead')
+            }
+
+            setStatus({type: 'success', message: `Thanks ${body.first_name}. Your information was saved and sent successfully!`})
+        } catch (error) {
+            setStatus({type: 'error', message: error instanceof Error ? error.message : 'Unable to submit the form right now.'})
+        } finally {
+            setIsSubmitting(false)
+        }
 
     }
 
@@ -56,7 +81,7 @@ export default function Form() {
                 <div className="grid gap-5 sm:grid-cols-2">
                     <div>
                         <label htmlFor="first" className="mb-2 block text-sm font-semibold text-slate-800">
-                        First name *
+                            First name *
                         </label>
                         <input
                             id="first"
@@ -72,7 +97,7 @@ export default function Form() {
 
                     <div>
                         <label htmlFor="last" className="mb-2 block text-sm font-semibold text-slate-800">
-                        Last name *
+                            Last name *
                         </label>
                         <input
                             id="last"
@@ -89,7 +114,7 @@ export default function Form() {
                 </div>
                 <div>
                     <label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-800">
-                    Email *
+                        Email *
                     </label>
                     <input
                         id="email"
@@ -99,6 +124,20 @@ export default function Form() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="mike.wazowski@monsters.inc"
+                        className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-200"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="company" className="mb-2 block text-sm font-semibold text-slate-800">
+                        Company
+                    </label>
+                    <input
+                        id="company"
+                        name="company"
+                        type="text"
+                        value={formData.company}
+                        onChange={handleChange}
+                        placeholder="Monsters Inc."
                         className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-200"
                     />
                 </div>
