@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!isNonEmptyString(first) || !isNonEmptyString(last) || !isNonEmptyString(email) || !isNonEmptyString(hearInfo)) {
         return NextResponse.json(
             { error: 'First name, last name, email, and source are required.' },
-            { status: 400 }
+            { status: 500 }
         )
     }
 
@@ -66,5 +66,28 @@ export async function POST(request: NextRequest) {
     if (insertError) {
         return NextResponse.json({error: "Supabase insert failed!", message: insertError.message}, {status: 500})
     }
+
+    // Send to the webhook at Secco
+    const webhookResponse = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Candidate-Name': "Steven Lu"
+        },
+        body: JSON.stringify({
+            source: 'lead-capture-page',
+            table: tableName,
+            lead: savedLead ?? leadInfo,
+            submitted_at: new Date().toISOString(),
+        }),
+    });
+
+
+    if (!webhookResponse.ok) {
+        const responseText = await webhookResponse.text();
+        console.log("Error", responseText || webhookResponse.statusText)
+    }
+
+    return NextResponse.json({ ok: true, lead: savedLead ?? leadInfo })
     
 }

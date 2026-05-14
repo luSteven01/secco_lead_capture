@@ -7,7 +7,7 @@ const initialFormState = {
     last: '',
     email: '',
     company: '',
-    hear_info: '',
+    hear_info: 'google',
     message: ''
 }
 
@@ -38,15 +38,16 @@ export default function Form() {
         setStatus({type: 'idle', message: ''})
 
         try {
-            const response = await fetch('/api/lead-capture', {
+            const response = await fetch('/api/lead_capture', {
                 method: 'POST',
                 headers:{
-                    'Content-Type': 'application.json'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             })
 
             const body = await response.json()
+            console.log(body)
 
             if(!response.ok) {
                 throw new Error(body?.error ?? ' Something went wrong sending the lead')
@@ -162,7 +163,7 @@ export default function Form() {
                 </div>
                 <div>
                     <label htmlFor="message" className="mb-2 block text-sm font-semibold text-slate-800">
-                    Message *
+                    Message
                     </label>
                     <textarea
                         id="message"
